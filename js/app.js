@@ -44,7 +44,7 @@ function addTask(e){
 
         showAlert('Modified successfully', 'success');
 
-        //form.value = 'Add Task';
+        document.querySelector('#form-button').value = 'Add task';
 
         edit = false;
 
@@ -96,17 +96,14 @@ function createHTML(){
             // Edit Button
             const editBtn = document.createElement('a');       
             editBtn.classList.add('edit-task');
-            editBtn.innerHTML = 'Edit';
+            editBtn.innerText = 'Edit';
 
             editBtn.onclick = () => editTask(task);
 
             // Separate
             const separate = document.createElement('a');
-            separate.textContent = `            `;
             separate.classList.add('edit-task');
 
-
-            
             const li = document.createElement('li');            
             li.classList.add ('checkbox');
             li.innerText = task.task;
@@ -144,27 +141,25 @@ function deleteTask(id){
 }
 
 function taskEditor(newTask) {
-    tasks = tasks.map( task => task.id === newTask.id ? newTask : task);
+    console.log(newTask);
+    tasks = tasks.map( task => task.id === newTask.id ? task = newTask : task);
 }
 
 
 function editTask(eTask){
-    const {task, id} = eTask;
-    
-    // Reiniciar el objeto
-    taskObj.task = task;
-    taskObj.id = id;
-    console.log(taskObj.id);
-
-    // Llenar los inputs
-    document.querySelector('#todolist').value = task;
+    console.log('ARREGLO EN EDITTASK');
+    console.log(tasks);
+    document.querySelector('#todolist').value = eTask.task;
     //propietarioInput.value = propietario;
 
 
     // Cambiar texto del botón
-    //form.value = 'Save Changes';
-
+    document.querySelector('#form-button').value = 'Save Changes';
+    
     edit = true;
+    taskObj.task = eTask.task;
+    taskObj.id = eTask.id;
+    createHTML();
 }
 
 function resetObj() {
