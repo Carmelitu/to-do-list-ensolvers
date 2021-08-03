@@ -11,6 +11,7 @@ h1, h2 {
     cursor: pointer;
     color: red;
     font-weight: bold;
+    height: auto;
 }
 
 .edit-task,
@@ -19,6 +20,8 @@ h1, h2 {
     cursor: pointer;
     color: black;
     font-weight: bold;
+    margin-right: 10px;
+    height: auto;
 }
 
 .error {

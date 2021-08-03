@@ -4,9 +4,18 @@ const tasksList = document.querySelector('#list');
 var tasks = [];
 var edit = false;
 
+// Principal Obj
 var taskObj = {
     id: '',
     task: ''
+}
+
+// Folders
+var folders = [];
+
+var folder = {
+    name: '',
+    listTasks: []
 }
 
 // Event Listeners
@@ -44,6 +53,7 @@ function addTask(e){
 
         showAlert('Modified successfully', 'success');
 
+        document.querySelector('#add-task').textContent = `Add a task:`;
         document.querySelector('#form-button').value = 'Add task';
 
         edit = false;
@@ -83,6 +93,7 @@ function showAlert(message, type){
 // Muestra listado de tweets
 function createHTML(){
     cleanHTML();
+    const ul = document.createElement('ul');
 
     if (tasks.length > 0){
         tasks.forEach( task => {
@@ -94,25 +105,25 @@ function createHTML(){
             deleteBtn.onclick = () => deleteTask(task.id);
 
             // Edit Button
-            const editBtn = document.createElement('a');       
+            const editBtn = document.createElement('a'); 
             editBtn.classList.add('edit-task');
             editBtn.innerText = 'Edit';
 
             editBtn.onclick = () => editTask(task);
 
-            // Separate
-            const separate = document.createElement('a');
-            separate.classList.add('edit-task');
+            // List
+           /* var li = document.createElement('input'); 
+            li.type = 'checkbox';
+            li.setAttribute('id','check');*/
 
-            const li = document.createElement('li');            
-            li.classList.add ('checkbox');
+            const li = document.createElement('li');   
             li.innerText = task.task;
-            //li.innerHTML = `<input type="checkbox"> ${task.task}`;
+            li.innerHTML = `<input type="checkbox"> ${task.task} `;
+            /*<a class="delete-task"> X </a>
+            <a class="edit-task"> Edit </a>`;*/
             
             li.appendChild(deleteBtn);
-            li.appendChild(separate);
             li.appendChild(editBtn);
-            
 
             tasksList.appendChild(li);
             
@@ -147,14 +158,11 @@ function taskEditor(newTask) {
 
 
 function editTask(eTask){
-    console.log('ARREGLO EN EDITTASK');
-    console.log(tasks);
     document.querySelector('#todolist').value = eTask.task;
-    //propietarioInput.value = propietario;
-
 
     // Cambiar texto del botón
     document.querySelector('#form-button').value = 'Save Changes';
+    document.querySelector('#add-task').textContent = `Modifying "${eTask.task}" task:`;
     
     edit = true;
     taskObj.task = eTask.task;
@@ -162,7 +170,7 @@ function editTask(eTask){
     createHTML();
 }
 
-function resetObj() {
+/*function resetObj() {
     taskObj.task = '';
     taskObj.id = '';
-}
+}*/
