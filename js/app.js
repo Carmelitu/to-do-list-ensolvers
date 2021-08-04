@@ -180,7 +180,7 @@ function refreshHTML(){
                 check.innerText ='✓';
                 li.classList.add('tachar');
                 li.classList.remove('pendiente');
-                done = true;
+                changeStatus(eTask);
 
             } else {
                 check.classList.add('unchecked');
@@ -188,10 +188,8 @@ function refreshHTML(){
                 check.innerText ='...';
                 li.classList.add('pendiente');
                 li.classList.remove('tachar');
-                done = false;
-            }}
-    
-            
+                changeStatus(eTask);
+            }};              
     
             li.appendChild(check);
             li.appendChild(deleteBtn);
@@ -228,8 +226,6 @@ function deleteTask(id){
     transaction.onerror = () => {
         showAlert('Oops! An error ocurred', 'error');
     }
-    
-    
 }
 
 // Edits task on DB
@@ -246,6 +242,30 @@ function editTask(eTask){
         id: eTask.id,
         task: eTask.task,
         done: eTask.done
+    }
+
+    refreshHTML();
+}
+
+// Change task status
+function changeStatus(eTask){
+    const transaction = DB.transaction(['tasks'], 'readwrite');
+    const objectStore = transaction.objectStore('tasks');
+
+    if (eTask.done === false){
+        eTask.done = true;
+    } else {
+        eTask.done = false;
+    }
+    
+    objectStore.put(eTask);
+
+    transaction.oncomplete = () => {
+        if (eTask.done === true){
+            showAlert('Good Job!', 'success');
+        } else {
+            showAlert('Task status changed', 'success');
+        }
     }
 
     refreshHTML();
