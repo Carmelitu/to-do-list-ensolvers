@@ -48,8 +48,8 @@ li {
     color: white;
 }
 
-.unchecked,
-.unchecked:hover{
+.checked,
+.checked:hover{
     float: left;
     background-color: #2fc63e;
     text-align: center;
@@ -58,4 +58,25 @@ li {
     width: 24px;
     margin-right: 12px;
     color: white;
+}
+
+.unchecked,
+.unchecked:hover{
+    float: left;
+    background-color: rgb(10, 178, 190);
+    text-align: center;
+    padding: 1px;
+    font-weight: bold;
+    width: 24px;
+    margin-right: 12px;
+    color: white;
+}
+
+.tachar{
+    text-decoration: line-through;
+    font-weight: none;
+}
+
+.pendiente{
+    font-weight: bold;
 }

@@ -39,7 +39,7 @@ function eventListeners(){
 function addTask(e){
     e.preventDefault();
 
-    const task = document.querySelector('#todolist').value;
+    task = document.querySelector('#todolist').value;
 
     if (task === ''){
         showAlert('Task cannot be empty', 'error');
@@ -47,9 +47,10 @@ function addTask(e){
     }
 
     if(edit) {
-        // Estamos editando
+
         taskObj.task = task;
-        taskEditor( {...taskObj} );
+
+        taskEditor({...taskObj});
 
         showAlert('Modified successfully', 'success');
 
@@ -66,7 +67,7 @@ function addTask(e){
             task
         }
 
-        tasks =[...tasks, taskObj];
+        tasks = [...tasks, taskObj];
 
         // Mostrar mensaje de que todo esta bien...
         showAlert('Added successfully', 'success');
@@ -100,38 +101,46 @@ function createHTML(){
             const deleteBtn = document.createElement('a');
             deleteBtn.classList.add('delete-task');
             deleteBtn.innerText = 'X';
-
+    
             deleteBtn.onclick = () => deleteTask(task.id);
-
+    
             // Edit Button
             const editBtn = document.createElement('a'); 
             editBtn.classList.add('edit-task');
             editBtn.innerText = 'Edit';
-
+    
             editBtn.onclick = () => editTask(task);
-
-            // List
-           /* var li = document.createElement('input'); 
-            li.type = 'checkbox';
-            li.setAttribute('id','check');*/
+    
+            
             const check = document.createElement('a');
             check.classList.add('unchecked');
-            check.innerText ='✓';
-
-            const li = document.createElement('li');   
+            check.innerText ='...';
+    
+            check.onclick = () => { if (check.classList.contains('unchecked')){
+                check.classList.remove('unchecked');
+                check.classList.add('checked');
+                check.innerText ='✓';
+                li.classList.add('tachar');
+                li.classList.remove('pendiente');
+            } else {
+                check.classList.add('unchecked');
+                check.classList.remove('checked');
+                check.innerText ='...';
+                li.classList.add('pendiente');
+                li.classList.remove('tachar');
+            }}
+    
+            const li = document.createElement('li');
+            li.classList.add('pendiente');
             li.innerText = task.task;
-           // li.innerHTML = `<input type="checkbox"> ${task.task} `;
-            
-            /*<a class="delete-task"> X </a>
-            <a class="edit-task"> Edit </a>`;*/
+    
             li.appendChild(check);
             li.appendChild(deleteBtn);
             li.appendChild(editBtn);
-
+    
             tasksList.appendChild(li);
             
-        })
-    }
+        })}
 
     syncStorage();
 }
@@ -155,7 +164,6 @@ function deleteTask(id){
 }
 
 function taskEditor(newTask) {
-    console.log(newTask);
     tasks = tasks.map( task => task.id === newTask.id ? task = newTask : task);
 }
 
@@ -168,12 +176,13 @@ function editTask(eTask){
     document.querySelector('#add-task').textContent = `Modifying "${eTask.task}" task:`;
     
     edit = true;
-    taskObj.task = eTask.task;
-    taskObj.id = eTask.id;
+
+    taskObj = {
+        id: eTask.id,
+        task: eTask.task
+    }
+
     createHTML();
 }
 
-/*function resetObj() {
-    taskObj.task = '';
-    taskObj.id = '';
-}*/
+
