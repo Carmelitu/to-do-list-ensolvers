@@ -2,6 +2,10 @@ h1, h2 {
     text-align: center;
 }
 
+li {
+    list-style: none;
+}
+
 #contenido {
     margin-top: 40px;
 }
@@ -35,11 +39,23 @@ h1, h2 {
 }
 
 .success {
-    background-color: green;
+    background-color: #2fc63e;
     text-align: center;
     padding: 10px;
     font-weight: bold;
     max-width: 400px;
     margin: 0 auto;
+    color: white;
+}
+
+.unchecked,
+.unchecked:hover{
+    float: left;
+    background-color: #2fc63e;
+    text-align: center;
+    padding: 1px;
+    font-weight: bold;
+    width: 24px;
+    margin-right: 12px;
     color: white;
 }

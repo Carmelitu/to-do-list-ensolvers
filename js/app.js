@@ -93,7 +93,6 @@ function showAlert(message, type){
 // Muestra listado de tweets
 function createHTML(){
     cleanHTML();
-    const ul = document.createElement('ul');
 
     if (tasks.length > 0){
         tasks.forEach( task => {
@@ -115,13 +114,17 @@ function createHTML(){
            /* var li = document.createElement('input'); 
             li.type = 'checkbox';
             li.setAttribute('id','check');*/
+            const check = document.createElement('a');
+            check.classList.add('unchecked');
+            check.innerText ='✓';
 
             const li = document.createElement('li');   
             li.innerText = task.task;
-            li.innerHTML = `<input type="checkbox"> ${task.task} `;
+           // li.innerHTML = `<input type="checkbox"> ${task.task} `;
+            
             /*<a class="delete-task"> X </a>
             <a class="edit-task"> Edit </a>`;*/
-            
+            li.appendChild(check);
             li.appendChild(deleteBtn);
             li.appendChild(editBtn);
 
