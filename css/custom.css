@@ -58,6 +58,7 @@ li {
     width: 24px;
     margin-right: 12px;
     color: white;
+    cursor: pointer;
 }
 
 .unchecked,
@@ -70,6 +71,7 @@ li {
     width: 24px;
     margin-right: 12px;
     color: white;
+    cursor: pointer;
 }
 
 .tachar{

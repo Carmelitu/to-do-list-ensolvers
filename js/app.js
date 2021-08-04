@@ -1,13 +1,14 @@
-// Variables
+// Vars
 const form = document.querySelector('#form');
 const tasksList = document.querySelector('#list');
-var tasks = [];
 var edit = false;
+let DB;
 
 // Principal Obj
 var taskObj = {
     id: '',
-    task: ''
+    task: '',
+    done: false
 }
 
 // Folders
@@ -18,24 +19,26 @@ var folder = {
     listTasks: []
 }
 
-// Event Listeners
-eventListeners();
+// DB starts with App
+window.onload = () => {
+    eventListeners();
+    createDB();
+}
 
+// Event Listeners
 function eventListeners(){
     // Carga tweet al enviar form
     form.addEventListener('submit', addTask);
 
     // Carga tweets cuando el documento está listo
     document.addEventListener('DOMContentLoaded', () => {
-        tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-
-        createHTML();
+        refreshHTML();
     })
 }
 
-// Funciones
+// --------- Functions ---------
 
-// Agrega task al enviar form
+// Adds task when submit
 function addTask(e){
     e.preventDefault();
 
@@ -47,38 +50,60 @@ function addTask(e){
     }
 
     if(edit) {
-
+        // Edit starts
         taskObj.task = task;
 
-        taskEditor({...taskObj});
+        // Edit on IndexedDB
+        const transaction = DB.transaction(['tasks'], 'readwrite');
+        const objectStore = transaction.objectStore('tasks');
 
-        showAlert('Modified successfully', 'success');
+        objectStore.put(taskObj);
 
-        document.querySelector('#add-task').textContent = `Add a task:`;
-        document.querySelector('#form-button').value = 'Add task';
+        transaction.oncomplete = () => {
+            showAlert('Modified successfully', 'success');
 
-        edit = false;
+            document.querySelector('#add-task').textContent = `Add a task:`;
+            document.querySelector('#form-button').value = 'Add task';
 
-    } else {
-
-        // Generar un ID único
-        taskObj = {
-            id: Date.now(),
-            task
+            edit = false;
         }
 
-        tasks = [...tasks, taskObj];
+        transaction.onerror = () => {
+            showAlert('Oops! An error ocurred', 'error');
+        }
 
-        // Mostrar mensaje de que todo esta bien...
-        showAlert('Added successfully', 'success');
+    } else {
+        // Generate unique ID
+        taskObj = {
+            id: Date.now(),
+            task,
+            done: false
+        }
+        
+        // Uploading to IndexedDB
+        const transaction = DB.transaction(['tasks'], 'readwrite');
+        const objectStore = transaction.objectStore('tasks');
+
+        objectStore.add(taskObj);
+
+        transaction.oncomplete = () => {
+            console.log('Task added');
+
+            // Added OK to DB
+            showAlert('Added successfully', 'success');
+        }
+
+        transaction.onerror = () => {
+            showAlert('Oops! An error ocurred', 'error');
+        }
+        
     }
 
-    createHTML();
+    refreshHTML();
     form.reset();
-    console.log(tasks);
 }
 
-// Muestra error recibido por parametro
+// Shows an error o success message
 function showAlert(message, type){
     const alertMsg = document.createElement('p');
     alertMsg.textContent = message;
@@ -91,58 +116,94 @@ function showAlert(message, type){
     }, 3000);
 }
 
-// Muestra listado de tweets
-function createHTML(){
+// Shows updated HTML
+function refreshHTML(){
     cleanHTML();
 
-    if (tasks.length > 0){
-        tasks.forEach( task => {
+    // Reads DB
+    const objectStore = DB.transaction('tasks').objectStore('tasks');
+
+    let total = objectStore.count();
+    total.onsuccess = function() {
+        total = total.result;
+        console.log(total);
+    }
+
+    objectStore.openCursor().onsuccess = function (e) {
+
+        const cursor = e.target.result
+        
+        if (cursor){
+
+            var {id, task, done} = cursor.value
+
             // Delete Button
             const deleteBtn = document.createElement('a');
             deleteBtn.classList.add('delete-task');
             deleteBtn.innerText = 'X';
     
-            deleteBtn.onclick = () => deleteTask(task.id);
+            deleteBtn.onclick = () => deleteTask(id);
     
             // Edit Button
             const editBtn = document.createElement('a'); 
             editBtn.classList.add('edit-task');
             editBtn.innerText = 'Edit';
+
+            const eTask = cursor.value;
     
-            editBtn.onclick = () => editTask(task);
+            editBtn.onclick = () => editTask(eTask);
     
             
             const check = document.createElement('a');
-            check.classList.add('unchecked');
-            check.innerText ='...';
-    
-            check.onclick = () => { if (check.classList.contains('unchecked')){
+
+            const li = document.createElement('li');
+            li.classList.add('pendiente');
+            li.innerText = task;
+
+            if (done === false) {
+                check.classList.add('unchecked');
+                check.classList.remove('checked');
+                check.innerText ='...';
+                li.classList.add('pendiente');
+                li.classList.remove('tachar');
+            } else {
                 check.classList.remove('unchecked');
                 check.classList.add('checked');
                 check.innerText ='✓';
                 li.classList.add('tachar');
                 li.classList.remove('pendiente');
+            }
+    
+            check.onclick = () => { if (done === false){
+                check.classList.remove('unchecked');
+                check.classList.add('checked');
+                check.innerText ='✓';
+                li.classList.add('tachar');
+                li.classList.remove('pendiente');
+                done = true;
+
             } else {
                 check.classList.add('unchecked');
                 check.classList.remove('checked');
                 check.innerText ='...';
                 li.classList.add('pendiente');
                 li.classList.remove('tachar');
+                done = false;
             }}
     
-            const li = document.createElement('li');
-            li.classList.add('pendiente');
-            li.innerText = task.task;
+            
     
             li.appendChild(check);
             li.appendChild(deleteBtn);
             li.appendChild(editBtn);
     
             tasksList.appendChild(li);
-            
-        })}
 
-    syncStorage();
+            // Next element
+
+            cursor.continue();
+        }
+    }    
 }
 
 // Limpia HTML
@@ -152,22 +213,26 @@ function cleanHTML(){
     }
 }
 
-// Agrega las tasks a Local Storage
-function syncStorage(){
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-}
-
+// Deletes task from DB
 function deleteTask(id){
-    tasks = tasks.filter(task => task.id !== id);
-    showAlert('Task deleted', 'success');
-    createHTML();
+    const transaction = DB.transaction(['tasks'], 'readwrite');
+    const objectStore = transaction.objectStore('tasks');
+
+    objectStore.delete(id);
+
+    transaction.oncomplete = () => {
+        showAlert('Task deleted', 'success');
+        refreshHTML();
+    }
+
+    transaction.onerror = () => {
+        showAlert('Oops! An error ocurred', 'error');
+    }
+    
+    
 }
 
-function taskEditor(newTask) {
-    tasks = tasks.map( task => task.id === newTask.id ? task = newTask : task);
-}
-
-
+// Edits task on DB
 function editTask(eTask){
     document.querySelector('#todolist').value = eTask.task;
 
@@ -179,10 +244,43 @@ function editTask(eTask){
 
     taskObj = {
         id: eTask.id,
-        task: eTask.task
+        task: eTask.task,
+        done: eTask.done
     }
 
-    createHTML();
+    refreshHTML();
 }
 
+// Creates IndexedDB
+function createDB(){
+    const createDB = window.indexedDB.open('tasks', 1);
 
+    // DB not created
+    createDB.onerror = () => {
+        console.log('Error loading DB...');
+    }
+
+    // DB created ok
+    createDB.onsuccess = () => {
+        console.log('DB created successfully');
+
+        DB = createDB.result;
+
+        refreshHTML();
+    }
+
+    // Define Schema
+    createDB.onupgradeneeded = (e) => {
+        const db = e.target.result;
+
+        const objectStore = db.createObjectStore('tasks', {
+            keyPath: 'id',
+            autoincrement: true
+        });
+
+        // Define columns
+        objectStore.createIndex('id', 'id', {unique: true} );
+        objectStore.createIndex('task', 'task', {unique: false} );
+
+    }
+}
