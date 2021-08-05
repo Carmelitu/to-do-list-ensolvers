@@ -1,22 +1,19 @@
 // Vars
 const form = document.querySelector('#form');
 const tasksList = document.querySelector('#list');
+const divFolders = document.querySelector('#folders');
+const formFolder = document.querySelector('#folder-button');
+
 var edit = false;
-let DB;
+var DB;
+var foldersArray = [];
 
 // Principal Obj
 var taskObj = {
     id: '',
     task: '',
-    done: false
-}
-
-// Folders
-var folders = [];
-
-var folder = {
-    name: '',
-    listTasks: []
+    done: false,
+    folder: ''
 }
 
 // DB starts with App
@@ -33,6 +30,7 @@ function eventListeners(){
     // Carga tweets cuando el documento está listo
     document.addEventListener('DOMContentLoaded', () => {
         refreshHTML();
+        
     })
 }
 
@@ -43,15 +41,17 @@ function addTask(e){
     e.preventDefault();
 
     task = document.querySelector('#todolist').value;
+    folder = document.querySelector('#folder').value;
 
-    if (task === ''){
-        showAlert('Task cannot be empty', 'error');
+    if (task === '' || folder === ''){
+        showAlert('All field must be completed', 'error');
         return;
     }
 
     if(edit) {
         // Edit starts
         taskObj.task = task;
+        taskObj.folder = folder;
 
         // Edit on IndexedDB
         const transaction = DB.transaction(['tasks'], 'readwrite');
@@ -73,11 +73,13 @@ function addTask(e){
         }
 
     } else {
+        
         // Generate unique ID
         taskObj = {
             id: Date.now(),
             task,
-            done: false
+            done: false,
+            folder
         }
         
         // Uploading to IndexedDB
@@ -119,10 +121,12 @@ function showAlert(message, type){
 // Shows updated HTML
 function refreshHTML(){
     cleanHTML();
+    getFolders();
 
     // Reads DB
     const objectStore = DB.transaction('tasks').objectStore('tasks');
 
+    // Counts Elements
     let total = objectStore.count();
     total.onsuccess = function() {
         total = total.result;
@@ -134,7 +138,6 @@ function refreshHTML(){
         const cursor = e.target.result
         
         if (cursor){
-
             var {id, task, done} = cursor.value
 
             // Delete Button
@@ -198,7 +201,6 @@ function refreshHTML(){
             tasksList.appendChild(li);
 
             // Next element
-
             cursor.continue();
         }
     }    
@@ -231,6 +233,7 @@ function deleteTask(id){
 // Edits task on DB
 function editTask(eTask){
     document.querySelector('#todolist').value = eTask.task;
+    document.querySelector('#folder').value = eTask.folder;
 
     // Cambiar texto del botón
     document.querySelector('#form-button').value = 'Save Changes';
@@ -241,10 +244,35 @@ function editTask(eTask){
     taskObj = {
         id: eTask.id,
         task: eTask.task,
-        done: eTask.done
+        done: eTask.done,
+        folder: eTask.folder
     }
 
     refreshHTML();
+}
+
+// Gets folders
+function getFolders(){
+    const transaction = DB.transaction(['tasks'], 'readwrite');
+    const objectStore = transaction.objectStore('tasks');
+    const folders = [];
+
+    objectStore.openCursor().onsuccess = function (e) {
+
+    const cursor = e.target.result
+        
+        if (cursor){
+            var {folder} = cursor.value;
+            folders.push(folder);
+
+            cursor.continue();
+        }
+    
+    const folderSet = new Set(folders);
+
+    foldersArray = [...folderSet];
+    console.log(foldersArray);
+    }   
 }
 
 // Change task status
@@ -301,6 +329,7 @@ function createDB(){
         // Define columns
         objectStore.createIndex('id', 'id', {unique: true} );
         objectStore.createIndex('task', 'task', {unique: false} );
+        objectStore.createIndex('folder', 'folder', {unique: false} );
 
     }
 }

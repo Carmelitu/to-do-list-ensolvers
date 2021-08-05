@@ -254,9 +254,16 @@ textarea {
      -moz-appearance: none;
           appearance: none; }
 textarea {
-  min-height: 65px;
+  min-height: 70px;
   padding-top: 6px;
   padding-bottom: 6px; }
+
+.textarea-folder {
+    min-height: 35px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
 input[type="email"]:focus,
 input[type="number"]:focus,
 input[type="search"]:focus,
@@ -361,7 +368,9 @@ form {
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 .u-full-width {
   width: 100%;
-  box-sizing: border-box; }
+  box-sizing: border-box;
+  color: black;
+}
 .u-max-full-width {
   max-width: 100%;
   box-sizing: border-box; }

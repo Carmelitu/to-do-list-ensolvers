@@ -1,4 +1,17 @@
-h1, h2 {
+body {
+    background: #4b6cb7;  
+    background: -webkit-linear-gradient(to right, #182848, #4b6cb7);  
+    background: linear-gradient(to right, #182848, #4b6cb7);
+    color: white;
+}
+
+h1, p {
+    display: block;
+    text-align: center;
+    line-height:.8;
+}
+
+h2 {
     text-align: center;
 }
 
@@ -22,7 +35,7 @@ li {
 .edit-task:hover {
     float: right;
     cursor: pointer;
-    color: black;
+    color: white;
     font-weight: bold;
     margin-right: 10px;
     height: auto;
@@ -76,7 +89,8 @@ li {
 
 .tachar{
     text-decoration: line-through;
-    font-weight: none;
+    font-weight: bold;
+    color: black;
 }
 
 .pendiente{
