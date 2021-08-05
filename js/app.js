@@ -127,6 +127,13 @@ function refreshHTML(){
     let total = objectStore.count();
     total.onsuccess = function() {
         total = total.result;
+        myTasks = document.querySelector('#mytasks');
+
+        if(total === 0){
+            myTasks.textContent = 'No tasks yet';
+        } else {
+            myTasks.textContent = `My tasks (${total})`;
+        }
     }
 
     objectStore.openCursor().onsuccess = function (e) {
@@ -139,66 +146,7 @@ function refreshHTML(){
 
             folders.push(folder);
 
-            // Delete Button
-            const deleteBtn = document.createElement('a');
-            deleteBtn.classList.add('delete-task');
-            deleteBtn.innerText = 'X';
-    
-            deleteBtn.onclick = () => deleteTask(id);
-    
-            // Edit Button
-            const editBtn = document.createElement('a'); 
-            editBtn.classList.add('edit-task');
-            editBtn.innerText = 'Edit';
-  
-            editBtn.onclick = () => editTask(eTask);
-    
-            // Check Button
-            const check = document.createElement('a');
-
-            // List
-            const li = document.createElement('li');
-            li.classList.add('pendiente');
-            li.classList.remove('folder');
-            li.innerText = task;
-
-            if (done === false) {
-                check.classList.add('unchecked');
-                check.classList.remove('checked');
-                check.innerText ='...';
-                li.classList.add('pendiente');
-                li.classList.remove('tachar');
-            } else {
-                check.classList.remove('unchecked');
-                check.classList.add('checked');
-                check.innerText ='✓';
-                li.classList.add('tachar');
-                li.classList.remove('pendiente');
-            }
-    
-            check.onclick = () => { if (done === false){
-                check.classList.remove('unchecked');
-                check.classList.add('checked');
-                check.innerText ='✓';
-                li.classList.add('tachar');
-                li.classList.remove('pendiente');
-                changeStatus(eTask);
-                } else {
-                check.classList.add('unchecked');
-                check.classList.remove('checked');
-                check.innerText ='...';
-                li.classList.add('pendiente');
-                li.classList.remove('tachar');
-                changeStatus(eTask);
-            }};              
-    
-            li.appendChild(check);
-            li.appendChild(deleteBtn);
-            li.appendChild(editBtn);
-        
-            ubicacion = document.querySelector(`#${eTask.folder.replaceAll(' ','-')}`);
-
-            ubicacion.appendChild(li);
+            addToTheList(eTask);
 
             // Next element
             cursor.continue();
@@ -206,11 +154,79 @@ function refreshHTML(){
     }
 }
 
-// Limpia HTML
+// HTML Cleaner
 function cleanHTML(){
     while(tasksList.firstChild){
         tasksList.removeChild(tasksList.firstChild);
     }
+}
+
+// Adds li to HTML
+function addToTheList(eTask){
+    const {id, task, done} = eTask;
+
+    // Delete Button
+    const deleteBtn = document.createElement('a');
+    deleteBtn.classList.add('delete-task');
+    deleteBtn.innerText = 'X';
+
+    deleteBtn.onclick = () => deleteTask(id);
+
+    // Edit Button
+    const editBtn = document.createElement('a'); 
+    editBtn.classList.add('edit-task');
+    editBtn.innerText = 'Edit';
+
+    editBtn.onclick = () => editTask(eTask);
+
+    // Check Button
+    const check = document.createElement('a');
+
+    // List
+    const li = document.createElement('div');
+    li.id = 'id' + id;
+    li.classList.add('pendiente');
+    li.classList.add('show-task');
+    li.classList.remove('folder');
+    li.innerText = task;
+
+    if (done === false) {
+        check.classList.add('unchecked');
+        check.classList.remove('checked');
+        check.innerText ='...';
+        li.classList.add('pendiente');
+        li.classList.remove('tachar');
+    } else {
+        check.classList.remove('unchecked');
+        check.classList.add('checked');
+        check.innerText ='✓';
+        li.classList.add('tachar');
+        li.classList.remove('pendiente');
+    }
+
+    check.onclick = () => { if (done === false){
+        check.classList.remove('unchecked');
+        check.classList.add('checked');
+        check.innerText ='✓';
+        li.classList.add('tachar');
+        li.classList.remove('pendiente');
+        changeStatus(eTask);
+        } else {
+        check.classList.add('unchecked');
+        check.classList.remove('checked');
+        check.innerText ='...';
+        li.classList.add('pendiente');
+        li.classList.remove('tachar');
+        changeStatus(eTask);
+    }};              
+
+    li.appendChild(check);
+    li.appendChild(deleteBtn);
+    li.appendChild(editBtn);
+
+    ubicacion = document.querySelector(`#${eTask.folder.replaceAll(' ','-')}`);
+
+    ubicacion.appendChild(li);
 }
 
 // Deletes task from DB
@@ -293,28 +309,65 @@ function getFolders(){
             if (folders.includes(folder)){
                 cursor.continue();
             } else {
-                const divFolder = document.createElement('div');
-                divFolder.textContent = folder;
-                folderId = folder.replaceAll(' ','-');
-                divFolder.id = folderId;
-                divFolder.classList.add('folder');
-
-                // Class Delete Button
-                const deleteBtn = document.createElement('a');
-                deleteBtn.classList.add('delete-folder');
-                deleteBtn.innerText = 'Remove';
-
-                deleteBtn.onclick = () => deleteFolder(folder);
-
-                divFolder.appendChild(deleteBtn);
-
-                tasksList.appendChild(divFolder);
+                createFolderDiv(folder);                
 
                 cursor.continue();
             }
             folders.push(folder);
             foldersArray = [... new Set(folders)];
          }   
+    }
+}
+
+// Creates div for folder
+function createFolderDiv(folder){    
+    const divFolder = document.createElement('div');
+    divFolder.textContent = folder;
+    let folderId = folder.replaceAll(' ','-');
+    divFolder.id = folderId;
+    divFolder.classList.add('folder');
+
+    // Folder Delete Button
+    const deleteBtn = document.createElement('a');
+    deleteBtn.classList.add('delete-folder');
+    deleteBtn.innerText = 'Remove';
+
+    deleteBtn.onclick = () => deleteFolder(folder);
+
+    // Folder Show Button
+    const showBtn = document.createElement('a');
+    showBtn.classList.add('show-folder');
+    showBtn.innerText = 'Show';
+
+    showBtn.onclick = () => showFolder(folder);
+
+    
+    divFolder.appendChild(deleteBtn);
+    divFolder.appendChild(showBtn);
+
+    tasksList.appendChild(divFolder);
+}
+
+function showFolder(eFolder){
+    const transaction = DB.transaction(['tasks'], 'readwrite');
+    const objectStore = transaction.objectStore('tasks');
+
+    objectStore.openCursor().onsuccess = function (e) {
+
+        const cursor = e.target.result
+        
+        if (cursor){
+            let {folder, id} = cursor.value;
+            let li = document.querySelector(`#id${id}`);
+            if (eFolder === folder){
+                if (li.classList.contains('show-task')){
+                    li.classList.replace('show-task', 'hide-task');
+                } else {
+                    li.classList.replace('hide-task', 'show-task');
+                }                
+            }
+            cursor.continue();
+        }
     }
 }
 
