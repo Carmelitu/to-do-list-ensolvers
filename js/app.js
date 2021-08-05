@@ -87,8 +87,6 @@ function addTask(e){
         objectStore.add(taskObj);
 
         transaction.oncomplete = () => {
-            console.log('Task added');
-
             // Added OK to DB
             showAlert('Added successfully', 'success');
         }
@@ -129,7 +127,6 @@ function refreshHTML(){
     let total = objectStore.count();
     total.onsuccess = function() {
         total = total.result;
-        console.log(total);
     }
 
     objectStore.openCursor().onsuccess = function (e) {
@@ -233,6 +230,32 @@ function deleteTask(id){
     }
 }
 
+function deleteFolder(folder){
+    const transaction = DB.transaction(['tasks'], 'readwrite');
+    const objectStore = transaction.objectStore('tasks');
+
+    var index = objectStore.index("folder");
+    var request = index.openCursor(IDBKeyRange.only(folder));
+
+    request.onsuccess = function() {
+        var cursor = request.result;
+    
+        if (cursor) {
+            cursor.delete();
+            cursor.continue();
+        }
+    }
+
+    transaction.oncomplete = () => {
+        showAlert('Folder removed', 'success');
+        refreshHTML();
+    }
+
+    transaction.onerror = () => {
+        showAlert('Oops! An error ocurred', 'error');
+    }
+}
+
 // Edits task on DB
 function editTask(eTask){
     document.querySelector('#todolist').value = eTask.task;
@@ -273,7 +296,6 @@ function getFolders(){
                 const divFolder = document.createElement('div');
                 divFolder.textContent = folder;
                 folderId = folder.replaceAll(' ','-');
-                console.log(folderId);
                 divFolder.id = folderId;
                 divFolder.classList.add('folder');
 
@@ -281,6 +303,8 @@ function getFolders(){
                 const deleteBtn = document.createElement('a');
                 deleteBtn.classList.add('delete-folder');
                 deleteBtn.innerText = 'Remove';
+
+                deleteBtn.onclick = () => deleteFolder(folder);
 
                 divFolder.appendChild(deleteBtn);
 
