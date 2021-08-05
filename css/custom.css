@@ -89,17 +89,18 @@ li {
 
 .tachar{
     text-decoration: line-through;
+    text-decoration-color: rgb(192, 7, 7);
     font-weight: bold;
     font-size: medium;
     margin-top: 10px;
-    color: black;
+    color: white;
 }
 
 .pendiente{
     font-weight: bold;
     font-size: medium;
     margin-top: 10px;
-    color: black;
+    color: white;
 }
 
 .folder{
