@@ -119,3 +119,23 @@ li {
     font-weight: bold;
     height: auto;
 }
+
+.show-folder,
+.show-folder:hover{
+    margin-top: 7.5px;
+    font-size: medium;
+    float: right;
+    cursor: pointer;
+    color: black;
+    font-weight: bold;
+    height: auto;
+    margin-right: 10px;
+}
+
+.hide-task{
+    display: none;
+}
+
+.show-task{
+    display: block;
+}
