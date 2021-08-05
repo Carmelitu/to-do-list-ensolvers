@@ -337,11 +337,17 @@ function createFolderDiv(folder){
     // Folder Show Button
     const showBtn = document.createElement('a');
     showBtn.classList.add('show-folder');
-    showBtn.innerText = 'Show';
+    showBtn.innerText = 'Hide';
 
-    showBtn.onclick = () => showFolder(folder);
+    showBtn.onclick = () => {
+        showFolder(folder);
+        if (showBtn.innerText === 'Hide'){
+            showBtn.innerText = 'Show';
+        } else {
+            showBtn.innerText = 'Hide';
+        }
+    }
 
-    
     divFolder.appendChild(deleteBtn);
     divFolder.appendChild(showBtn);
 
