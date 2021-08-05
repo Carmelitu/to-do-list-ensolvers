@@ -126,7 +126,7 @@ li {
     font-size: medium;
     float: right;
     cursor: pointer;
-    color: black;
+    color: rgb(230, 230, 230);
     font-weight: bold;
     height: auto;
     margin-right: 10px;
