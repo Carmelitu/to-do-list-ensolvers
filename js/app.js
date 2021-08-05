@@ -1,12 +1,11 @@
 // Vars
 const form = document.querySelector('#form');
 const tasksList = document.querySelector('#list');
-const divFolders = document.querySelector('#folders');
 const formFolder = document.querySelector('#folder-button');
+var foldersArray = [];
 
 var edit = false;
 var DB;
-var foldersArray = [];
 
 // Principal Obj
 var taskObj = {
@@ -30,7 +29,6 @@ function eventListeners(){
     // Carga tweets cuando el documento está listo
     document.addEventListener('DOMContentLoaded', () => {
         refreshHTML();
-        
     })
 }
 
@@ -122,6 +120,7 @@ function showAlert(message, type){
 function refreshHTML(){
     cleanHTML();
     getFolders();
+    var folders = [];
 
     // Reads DB
     const objectStore = DB.transaction('tasks').objectStore('tasks');
@@ -135,10 +134,13 @@ function refreshHTML(){
 
     objectStore.openCursor().onsuccess = function (e) {
 
-        const cursor = e.target.result
+        const cursor = e.target.result;
         
         if (cursor){
-            var {id, task, done} = cursor.value
+            var {id, task, done, folder} = cursor.value;
+            const eTask = cursor.value;
+
+            folders.push(folder);
 
             // Delete Button
             const deleteBtn = document.createElement('a');
@@ -151,16 +153,16 @@ function refreshHTML(){
             const editBtn = document.createElement('a'); 
             editBtn.classList.add('edit-task');
             editBtn.innerText = 'Edit';
-
-            const eTask = cursor.value;
-    
+  
             editBtn.onclick = () => editTask(eTask);
     
-            
+            // Check Button
             const check = document.createElement('a');
 
+            // List
             const li = document.createElement('li');
             li.classList.add('pendiente');
+            li.classList.remove('folder');
             li.innerText = task;
 
             if (done === false) {
@@ -184,8 +186,7 @@ function refreshHTML(){
                 li.classList.add('tachar');
                 li.classList.remove('pendiente');
                 changeStatus(eTask);
-
-            } else {
+                } else {
                 check.classList.add('unchecked');
                 check.classList.remove('checked');
                 check.innerText ='...';
@@ -197,13 +198,15 @@ function refreshHTML(){
             li.appendChild(check);
             li.appendChild(deleteBtn);
             li.appendChild(editBtn);
-    
-            tasksList.appendChild(li);
+        
+            ubicacion = document.querySelector(`#${eTask.folder.replaceAll(' ','-')}`);
+
+            ubicacion.appendChild(li);
 
             // Next element
             cursor.continue();
         }
-    }    
+    }
 }
 
 // Limpia HTML
@@ -263,16 +266,32 @@ function getFolders(){
         
         if (cursor){
             var {folder} = cursor.value;
+
+            if (folders.includes(folder)){
+                cursor.continue();
+            } else {
+                const divFolder = document.createElement('div');
+                divFolder.textContent = folder;
+                folderId = folder.replaceAll(' ','-');
+                console.log(folderId);
+                divFolder.id = folderId;
+                divFolder.classList.add('folder');
+
+                // Class Delete Button
+                const deleteBtn = document.createElement('a');
+                deleteBtn.classList.add('delete-folder');
+                deleteBtn.innerText = 'Remove';
+
+                divFolder.appendChild(deleteBtn);
+
+                tasksList.appendChild(divFolder);
+
+                cursor.continue();
+            }
             folders.push(folder);
-
-            cursor.continue();
-        }
-    
-    const folderSet = new Set(folders);
-
-    foldersArray = [...folderSet];
-    console.log(foldersArray);
-    }   
+            foldersArray = [... new Set(folders)];
+         }   
+    }
 }
 
 // Change task status

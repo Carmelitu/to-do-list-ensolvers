@@ -1,7 +1,7 @@
 body {
     background: #4b6cb7;  
-    background: -webkit-linear-gradient(to right, #182848, #4b6cb7);  
-    background: linear-gradient(to right, #182848, #4b6cb7);
+    background: -webkit-linear-gradient(to right, #4b6cb7, #182848); 
+    background: linear-gradient(to right, #4b6cb7, #182848);
     color: white;
 }
 
@@ -90,9 +90,31 @@ li {
 .tachar{
     text-decoration: line-through;
     font-weight: bold;
+    font-size: medium;
+    margin-top: 10px;
     color: black;
 }
 
 .pendiente{
     font-weight: bold;
+    font-size: medium;
+    margin-top: 10px;
+    color: black;
+}
+
+.folder{
+    text-align: left;
+    font-size: x-large;
+    margin-bottom: 20px;
+}
+
+.delete-folder,
+.delete-folder:hover {
+    margin-top: 7.5px;
+    font-size: medium;
+    float: right;
+    cursor: pointer;
+    color: red;
+    font-weight: bold;
+    height: auto;
 }
