@@ -23,10 +23,8 @@ window.onload = () => {
 
 // Event Listeners
 function eventListeners(){
-    // Carga tweet al enviar form
     form.addEventListener('submit', addTask);
 
-    // Carga tweets cuando el documento está listo
     document.addEventListener('DOMContentLoaded', () => {
         refreshHTML();
     })
@@ -40,9 +38,10 @@ function addTask(e){
 
     task = document.querySelector('#todolist').value;
     folder = document.querySelector('#folder').value;
+    
 
     if (task === '' || folder === ''){
-        showAlert('All field must be completed', 'error');
+        showAlert('All fields must be completed', 'error');
         return;
     }
 
@@ -75,9 +74,9 @@ function addTask(e){
         // Generate unique ID
         taskObj = {
             id: Date.now(),
-            task,
+            task: task.toString(),
             done: false,
-            folder
+            folder: capitalize(folder.toString())
         }
         
         // Uploading to IndexedDB
@@ -141,7 +140,7 @@ function refreshHTML(){
         const cursor = e.target.result;
         
         if (cursor){
-            var {id, task, done, folder} = cursor.value;
+            var {folder} = cursor.value;
             const eTask = cursor.value;
 
             folders.push(folder);
@@ -224,7 +223,7 @@ function addToTheList(eTask){
     li.appendChild(deleteBtn);
     li.appendChild(editBtn);
 
-    ubicacion = document.querySelector(`#${eTask.folder.replaceAll(' ','-')}`);
+    ubicacion = document.querySelector(`#folder${eTask.folder.replaceAll(' ','-')}`);
 
     ubicacion.appendChild(li);
 }
@@ -324,7 +323,7 @@ function createFolderDiv(folder){
     const divFolder = document.createElement('div');
     divFolder.textContent = folder;
     let folderId = folder.replaceAll(' ','-');
-    divFolder.id = folderId;
+    divFolder.id = 'folder' + folderId;
     divFolder.classList.add('folder');
 
     // Folder Delete Button
@@ -435,3 +434,7 @@ function createDB(){
 
     }
 }
+
+function capitalize(word) {
+    return word[0].toUpperCase() + word.slice(1).toLowerCase();
+  }
